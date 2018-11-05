@@ -1,0 +1,307 @@
+SHOW DATABASES;
+CREATE DATABASE STUDENTMANAGER;
+USE STUDENTMANAGER;
+SELECT * FROM SUBJECT;
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123456';
+
+CREATE TABLE FALCULTY(
+	Id CHAR(10) ,
+	FalName VARCHAR(50),
+	Dean VARCHAR(50),
+	CONSTRAINT PK_FAL PRIMARY KEY(Id)   
+);
+
+INSERT INTO FALCULTY VALUES ('CNTTTT', 'Khoa Cong Nghe Thong Tin Va Truyen Thong', 'Nguyen Huu Hoa');
+INSERT INTO FALCULTY VALUES ('KT', 'Khoa Kinh Te', 'Nguyen Duy Lan');
+
+
+DELETE FROM FALCULTY
+	LIMIT 3;    
+SELECT * FROM FALCULTY;
+DROP TABLE FALCULTY;
+
+CREATE TABLE MAJOR(
+	Id CHAR(10),
+	FalId CHAR(10),
+	MajorName VARCHAR(50),
+	CONSTRAINT PK_MAJOR PRIMARY KEY(Id),
+	CONSTRAINT FK_MAJOR_FAL_ID FOREIGN KEY (FalId) REFERENCES  FALCULTY(Id)
+);
+
+DESC MAJOR;
+
+INSERT INTO MAJOR
+	VALUES('CNTT', 'CNTTTT','Cong Nghe Thong Tin');
+INSERT INTO MAJOR
+	VALUES('CNTTCLC', 'CNTTTT', 'Cong Nghe Thong Tin CLC');
+INSERT INTO MAJOR
+	VALUES('TTMMT', 'CNTTTT','Truyen Thong Mang May Tinh');
+INSERT INTO MAJOR
+	VALUES('KDQT', 'KT', 'Kinh Doanh Quoc Te');
+INSERT INTO MAJOR
+	VALUES('QTKD', 'KT', 'Quan Tri Kinh Doanh');
+INSERT INTO MAJOR
+	VALUES('KDQTCLC', 'KT','Kinh Doanh Quoc Te CLC');
+    
+
+DELETE FROM MAJOR
+	LIMIT 5;
+SELECT * FROM MAJOR;
+DROP TABLE MAJOR;
+
+CREATE TABLE CLASS(
+	Id CHAR(10),  
+	ClassName VARCHAR(40),
+	HeadTeacher VARCHAR(50),
+	Course INTEGER,
+	CONSTRAINT PK_CLASS PRIMARY KEY(Id)
+);
+
+INSERT INTO CLASS VALUES ('DI16V7F1','CNTT Chat Luong Cao 1','Nguyen Thi Diem',42),
+						('DI16V7F2','CNTT Chat Luong Cao 2','Nguyen Ngoc My',42);
+INSERT INTO CLASS VALUES  ('DI16V7F3','Kinh Doanh Quoc Te Chat Luong Cao 3','Nguyen Toan Minh',42);
+
+DELETE FROM CLASS
+	LIMIT 3;    
+SELECT * FROM CLASS;
+DROP TABLE CLASS;
+
+CREATE TABLE COURSE(
+	Id CHAR(4),
+    CourseName CHAR(10) NOT NULL,
+    AcademicYear CHAR(9),
+    CONSTRAINT PK_COURSE PRIMARY KEY(Id)
+);
+
+INSERT INTO COURSE VALUES('K42','Khoa 42','2016-2020'),
+												('K43','Khoa 43','2017-2021'),
+                                                ('K44','Khoa 44','2018-2022'),
+                                                ('K45','Khoa 45','2019-2023'),
+                                                ('K40','Khoa 40','2014-2018');
+
+SELECT * FROM COURSE;
+DROP TABLE COURSE;
+
+CREATE TABLE COURSE_HAS_MAJOR(
+	CourseId CHAR(4),
+    MajorId CHAR(10),
+    CONSTRAINT FK_COURSE_HAS_MAJOR_MAJOR_Id FOREIGN KEY (MajorId) REFERENCES MAJOR(Id),
+    CONSTRAINT FK_COURSE_HAS_MAJOR_COURSE_Id FOREIGN KEY (CourseId) REFERENCES COURSE(Id),
+    CONSTRAINT PK_COURSE PRIMARY KEY(CourseId,MajorId)
+);
+
+INSERT INTO COURSE_HAS_MAJOR VALUES ('K42','CNTT'),
+						('K42','CNTTCLC'),
+                        ('K42','QTKD'),
+                        ('K40','CNTTCLC');
+
+CREATE TABLE STUDENT(
+	Id CHAR(10),
+	ClassId CHAR(10),
+	MajorId CHAR(10),
+	StudentName VARCHAR(50),
+    CourseId CHAR(4) NOT NULL,
+	CONSTRAINT PK_STUDENT PRIMARY KEY(Id),
+	CONSTRAINT FK_STUDENT_MAJOR_ID FOREIGN KEY (MajorId) REFERENCES  MAJOR(Id),
+	CONSTRAINT FK_STUDENT_CLASS_ID FOREIGN KEY (ClassId) REFERENCES  CLASS(Id),
+    CONSTRAINT FK_STUDENT_COURSE_ID FOREIGN KEY (CourseId) REFERENCES  COURSE(Id)
+);
+
+INSERT INTO STUDENT
+	VALUES('B1605369','DI16V7F1','CNTTCLC', 'Nguyen Minh Toan','K42');
+INSERT INTO STUDENT
+	VALUES('B1605404', 'DI16V7F2','CNTTCLC','Nguyen Thai Ngoc','K40');
+INSERT INTO STUDENT
+	VALUES('B1605396','DI16V7F1', 'CNTTCLC', 'Le Phuc Loc','K42');
+INSERT INTO STUDENT
+	VALUES('B1605383','DI16V7F3','KDQTCLC', 'Nguyen Thu Trang','K42');
+INSERT INTO STUDENT
+	VALUES('B1605333','DI16V7F1','CNTTCLC', 'Luu Thi Mai Min','K42');
+    
+ALTER TABLE STUDENT ADD COLUMN AcademicWarning INT DEFAULT 0;
+
+UPDATE STUDENT SET Course='K42' WHERE Id = 'B1605383';
+    
+    
+DELETE FROM STUDENT
+	LIMIT 4;
+SELECT * FROM STUDENT;
+DROP TABLE STUDENT;
+
+
+CREATE TABLE STUDENT_DETAIL(
+	Id CHAR(10),
+	DoB DATE,
+	Gender CHAR(5),
+	City VARCHAR(50),
+	Address VARCHAR(50),
+	Phone CHAR(11),
+	CONSTRAINT PK_STUDENT_DETAIL PRIMARY KEY(Id),
+	CONSTRAINT FK_STUDENT_DETAIL_STUDENT_ID FOREIGN KEY (Id) REFERENCES  STUDENT(Id)
+);
+
+INSERT INTO STUDENT_DETAIL
+	VALUES('B1605369', '1998-05-02', 'Nam', 'Can Tho', '12/54A Quang Trung', '0987654321');
+INSERT INTO STUDENT_DETAIL
+	VALUES('B1605383', '1998-09-14', 'Nam', 'Ca Mau', '22/54AE/78B Ho Tung Mau', '0987654322');
+INSERT INTO STUDENT_DETAIL
+	VALUES('B1605396', '1998-05-12', 'Nam', 'Can Tho', '132A 3/2 Ninh Kieu', '0987654323');
+INSERT INTO STUDENT_DETAIL
+	VALUES('B1605404', '1996-01-01', 'Nam', 'Can Tho', '121A 30/4 Ninh Kieu', '0987654324');
+INSERT INTO STUDENT_DETAIL
+	VALUES('B1605333', '1998-01-01', 'Nu', 'Kien Giang', '158A 3/2 Phu Cuong', '0987654325');
+
+
+SELECT * FROM STUDENT_DETAIL;
+DROP TABLE STUDENT_DETAIL;
+
+CREATE TABLE SUBJECT(
+	Id CHAR(10),
+	MajorId CHAR(10),
+	SubjectName VARCHAR(50),
+	Credit INTEGER NOT NULL,
+	CONSTRAINT PK_SUBJECT PRIMARY KEY(Id),
+	CONSTRAINT FK_SUBJECT_MAJOR_ID FOREIGN KEY (MajorId) REFERENCES  MAJOR(Id)
+);
+
+
+INSERT INTO SUBJECT
+	VALUES('CT313H','CNTT', 'Cong nghe va dich vu Web', 3);
+INSERT INTO SUBJECT
+	VALUES('CT201H','TTMMT', 'An ninh may tinh', 3);
+INSERT INTO SUBJECT
+	VALUES('CT107H','CNTT','Lap trinh can ban',3);
+
+SELECT * FROM SUBJECT;
+DROP TABLE SUBJECT;
+
+CREATE TABLE SCORE_RECORD(
+	SubjectId CHAR(10),
+	StudentId CHAR(10),
+	Year INTEGER,
+	Semester INTEGER,
+	Score FLOAT,
+	CONSTRAINT FK_SCORE_RECORD_SUBJECT_ID FOREIGN KEY (SubjectId) REFERENCES  SUBJECT(Id),
+	CONSTRAINT FK_SCORE_RECORD_STUDENT_ID FOREIGN KEY (StudentId) REFERENCES  STUDENT(Id),
+	CONSTRAINT PK_SCORE_RECORD PRIMARY KEY(SubjectId,StudentId,Year,Semester) 
+);
+
+INSERT INTO SCORE_RECORD
+	VALUES('CT313H', 'B1605369', 3, 1, 3.9);
+INSERT INTO SCORE_RECORD
+	VALUES('CT201H', 'B1605404', 3, 1, 3.6);
+INSERT INTO SCORE_RECORD
+	VALUES('CT201H', 'B1605369', 3, 1, 2.5);
+INSERT INTO SCORE_RECORD
+	VALUES('CT313H', 'B1605396', 3, 1, 0.9);
+INSERT INTO SCORE_RECORD
+	VALUES('CT313H', 'B1605404', 3, 1, 3.9);
+INSERT INTO SCORE_RECORD
+	VALUES('CT107H', 'B1605369', 1, 2, 1.4);
+
+SELECT * FROM SCORE_RECORD;
+DROP TABLE SCORE_RECORD;
+
+
+-- procedure find student
+delimiter //
+CREATE PROCEDURE findStudentWithId(StdId varchar(50))
+	BEGIN 
+		SELECT * FROM STUDENT WHERE Id = StdId;
+    END//
+
+-- this function can find anything in the world muhahahahaa
+delimiter //
+CREATE PROCEDURE findAnything(TableName varchar(20),ColumnName varchar(20),Value1 varchar(50))
+	BEGIN 
+        SET @TableName = TableName;
+        SET @ColumnName = ColumnName;
+        SET @Value1 = Value1;
+        SET @A = CONCAT('SELECT * FROM ',@TableName, ' WHERE ',@ColumnName,' LIKE "',@Value1,'"');
+        PREPARE STMT1 FROM @A;
+        EXECUTE STMT1;
+        DEaLLOCATE PREPARE STMT1;
+    END//
+-- PROCEDURE delete student with id
+CREATE PROCEDURE deleteAnyThing(TableName varchar(20),ColumnName varchar(20),Value1 varchar(50))
+	BEGIN 
+        SET @TableName = TableName;
+        SET @ColumnName = ColumnName;
+        SET @Value1 = Value1;
+        SET @A = CONCAT('DELETE FROM ',@TableName, ' WHERE ',@ColumnName,' = "',@Value1,'"');
+        PREPARE STMT1 FROM @A;
+        EXECUTE STMT1;
+        DEaLLOCATE PREPARE STMT1;
+    END//
+
+-- PROCIDURE modify anything 
+CREATE PROCEDURE modifyAnything(TableName varchar(20),ColumnModify varchar(20),NewValue varchar(50) ,ConditionColumn varchar(20),ValueCondition varchar(50))
+	BEGIN
+		SET @TableName = TableName;
+        SET @ColumnModify = ColumnModify;
+        SET @NewValue = NewValue;
+        SET @ConditionColumn = ConditionColumn;
+        SET @ValueCondition = ValueCondition;
+        SET @A = CONCAT('UPDATE ',@TableName, ' SET ',@ColumnModify,' = "',@NewValue,'" WHERE ',@ConditionColumn,' = "',ValueCondition,'"');
+        PREPARE STMT1 FROM @A;
+        EXECUTE STMT1;
+        DEaLLOCATE PREPARE STMT1;
+    END//
+
+
+CREATE PROCEDURE filterAcademicWarning()
+	BEGIN
+	SELECT * FROM STUDENT INNER JOIN SCORE_RECORD ON STUDENT.Id = SCORE_RECORD.StudentId WHERE AcademicWarning > 1 AND Score < 1.0;
+    END//
+
+CREATE PROCEDURE countNumberStudentEachFalculty(FalcultyId char(10))
+	BEGIN
+		SELECT *,COUNT(*) AS NumberStudent FROM FALCULTY INNER JOIN MAJOR
+        ON FALCULTY.Id = MAJOR.FalId INNER JOIN STUDENT 
+        ON MAJOR.Id = STUDENT.MajorId GROUP BY FALCULTY.Id HAVING FALCULTY.Id = FalcultyId;
+    END//
+-- as the name of function
+CREATE PROCEDURE countNumberStudentHaveTheSameFalcultyHometownAndCourse()
+	BEGIN
+		SELECT CourseId,FalId,City,COUNT(*) FROM STUDENT JOIN COURSE
+		 ON STUDENT.CourseId = COURSE.Id JOIN MAJOR 
+		 ON MAJOR.Id = STUDENT.MajorId JOIN STUDENT_DETAIL
+		 ON STUDENT.Id = STUDENT_DETAIL.Id
+		 GROUP BY CourseId,FalId,City;
+	END//
+    
+-- count avg according to studentid, year and semester
+CREATE FUNCTION avgWithStudentIdYearAndSemester(StdId CHAR(10),Y INT, Seme INT)
+	RETURNS FLOAT  DETERMINISTIC
+	BEGIN
+		DECLARE RESULT FLOAT DEFAULT 1;
+		SELECT ROUND(AVG(SCORE),2) INTO RESULT FROM SCORE_RECORD JOIN STUDENT 
+        ON SCORE_RECORD.StudentId = STUDENT.Id 
+        WHERE StudentId = StdId AND SCORE_RECORD.Year = Y AND SCORE_RECORD.semester = Seme;
+        RETURN RESULT;
+    END//
+DROP FUNCTION avgWithStudentIdYearAndSemester//
+delimiter ;
+SELECT * FROM MAJOR;
+SELECT * FROM COURSE;
+SELECT * FROM SCORE_RECORD;
+
+SELECT ROUND(AVG(SCORE),2) FROM SCORE_RECORD JOIN STUDENT ON SCORE_RECORD.StudentId = STUDENT.Id WHERE StudentId = 'B1605369' and year = 3 and semester = 1;
+
+CALL findStudentWithId('B1605404');
+CALL findAnything('STUDENT','StudentName','N%');
+CALL findAnything('STUDENT_DETAIL','GENDER','NAM');
+CALL findAnything('STUDENT_DETAIL','GENDER','N%');
+CALL modifyAnything('STUDENT','AcademicWarning','2','Id','B1605369');
+CALL modifyAnything('STUDENT','AcademicWarning','2','Id','B1605396');
+CALL deleteAnyThing('STUDENT','Id','B1605404');
+CALL filterAcademicWarning();
+CALL countNumberStudentEachFalculty('KT');
+CALL countNumberStudentHaveTheSameFalcultyHometownAndCourse();
+set @a= avgWithStudentIdYearAndSemester('B1605369',3,1);
+select @a;
+SELECT * FROM STUDENT;
+DROP PROCEDURE findStudentWithId;
+DROP PROCEDURE findAnything;
+
+
